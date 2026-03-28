@@ -58,7 +58,7 @@ All from public sources:
 
 ## Optional: Peon-Ping
 
-Sound notification system that plays voice lines on Claude Code events (tool calls, completions, errors). Not included in this repo due to sound file size. Ask for install instructions separately.
+Sound notification system that plays voice lines on Claude Code events (tool calls, completions, errors). Install from: https://github.com/PeonPing/peon-ping
 
 ## Customization
 
