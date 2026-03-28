@@ -1,6 +1,6 @@
 # Claude Code Tools
 
-Personal Claude Code hooks, plugins, and dev environment setup. Portable across machines.
+Personal Claude Code hooks, plugins, and dev environment setup. Portable across any machine.
 
 ## Quick Start
 
