@@ -55,11 +55,15 @@ SAFE (allow these — not exhaustive): running scripts, building, testing, text 
 
 RISKY (flag these — not exhaustive): git force push, deleting important source directories (rm -rf on project roots), system-level changes (apt/systemctl), overwriting safety config files (~/.claude/settings*, ~/.config/dcg/*), sending messages to other people (Slack, email), deploying to production etc.
 
-When in doubt, SAFE. The cost of a false block (interrupting the user's flow) is higher than the cost of allowing a borderline-safe command. Do NOT flag things just because they are "externally visible" — git push, creating PRs, and similar actions are normal parts of a dev workflow.
+When in doubt, SAFE. The cost of a false block (interrupting the user's flow) is higher than the cost of allowing a borderline-safe command. Do NOT flag things just because they are "externally visible" — git push, creating PRs, and similar actions are normal parts of a dev workflow. However, these externally-visible actions (push, PR creation, deployments) should only be allowed if the user explicitly asked for them to be done in this interaction.
 
 Action to evaluate:
 HEADER
   echo "$EVAL_TEXT" >> "$TMPFILE"
+  if [ -n "$LAST_USER_MSG" ]; then
+    echo "" >> "$TMPFILE"
+    echo "User's last message: $LAST_USER_MSG" >> "$TMPFILE"
+  fi
   cat >> "$TMPFILE" <<'FOOTER'
 
 Output ONLY: {"verdict":"SAFE","reason":"brief reason why it's safe"} or {"verdict":"RISKY","reason":"brief reason why it's risky"}
@@ -89,7 +93,19 @@ FOOTER
 INPUT=$(cat)
 TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null)
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // empty' 2>/dev/null)
+TRANSCRIPT_PATH=$(echo "$INPUT" | jq -r '.transcript_path // empty' 2>/dev/null)
 GSD_FILE="$HOME/.claude/nanny-gsd-${SESSION_ID}"
+
+
+# Extract last user message from transcript for Opus context (best-effort)
+# User-typed messages have .message.content as a string.
+# Tool results have .message.content as an array. We want the string ones.
+LAST_USER_MSG=""
+if [ -n "$TRANSCRIPT_PATH" ] && [ -f "$TRANSCRIPT_PATH" ]; then
+  LAST_USER_MSG=$(grep '"type":"user"' "$TRANSCRIPT_PATH" 2>/dev/null \
+    | jq -r 'select(.message.content | type == "string") | .message.content' 2>/dev/null \
+    | tail -1 | head -c 300)
+fi
 
 # --- GET SHIT DONE mode ---
 # When GSD file exists for this session, Opus still evaluates but with a much
