@@ -20,6 +20,7 @@ cp "$SCRIPT_DIR/claude-nanny/nanny-clear-pending.sh" "$HOOKS_DIR/claude-nanny/"
 cp "$SCRIPT_DIR/claude-nanny/nanny-display.sh" "$HOOKS_DIR/claude-nanny/"
 cp "$SCRIPT_DIR/claude-nanny/nanny-permission-display.sh" "$HOOKS_DIR/claude-nanny/"
 cp "$SCRIPT_DIR/claude-nanny/nanny-show-rejection.sh" "$HOOKS_DIR/claude-nanny/"
+cp "$SCRIPT_DIR/claude-nanny/nanny-auto-approve.sh" "$HOOKS_DIR/claude-nanny/"
 cp "$SCRIPT_DIR/claude-nanny/test-cases.json" "$HOOKS_DIR/claude-nanny/"
 cp "$SCRIPT_DIR/claude-nanny/test-nanny-prompt.sh" "$HOOKS_DIR/claude-nanny/"
 chmod +x "$HOOKS_DIR/claude-nanny/"*.sh

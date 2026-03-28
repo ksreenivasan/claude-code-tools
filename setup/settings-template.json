@@ -18,6 +18,11 @@
         "hooks": [
           {
             "type": "command",
+            "command": "$HOME/.claude/hooks/claude-nanny/nanny-auto-approve.sh",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
             "command": "$HOME/.claude/hooks/claude-nanny/nanny-permission-display.sh",
             "timeout": 5000
           }

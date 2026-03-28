@@ -11,6 +11,6 @@ LAST_LINE=$(tail -1 "$LOGFILE" 2>/dev/null)
 
 if [ -n "$LAST_LINE" ]; then
   # Escape quotes for JSON
-  ESCAPED=$(echo "$LAST_LINE" | sed 's/"/\\"/g')
+  ESCAPED=$(echo "$LAST_LINE" | sed 's/\\/\\\\/g; s/"/\\"/g')
   echo "{\"systemMessage\": \"$ESCAPED\"}"
 fi
