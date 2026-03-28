@@ -62,8 +62,13 @@ HEADER
   echo "$EVAL_TEXT" >> "$TMPFILE"
   if [ -n "$LAST_USER_MSG" ]; then
     echo "" >> "$TMPFILE"
-    echo "User's last message: $LAST_USER_MSG" >> "$TMPFILE"
+    echo "User's recent messages (most recent last):" >> "$TMPFILE"
+    echo "$LAST_USER_MSG" >> "$TMPFILE"
+  else
+    echo "" >> "$TMPFILE"
+    echo "User's recent messages: (not available)" >> "$TMPFILE"
   fi
+  log "[Nanny/ctx] user_msg_len=${#LAST_USER_MSG} preview=${LAST_USER_MSG:0:120}"
   cat >> "$TMPFILE" <<'FOOTER'
 
 Output ONLY: {"verdict":"SAFE","reason":"brief reason why it's safe"} or {"verdict":"RISKY","reason":"brief reason why it's risky"}
@@ -97,14 +102,14 @@ TRANSCRIPT_PATH=$(echo "$INPUT" | jq -r '.transcript_path // empty' 2>/dev/null)
 GSD_FILE="$HOME/.claude/nanny-gsd-${SESSION_ID}"
 
 
-# Extract last user message from transcript for Opus context (best-effort)
+# Extract last 3 user messages from transcript for Opus context (best-effort)
 # User-typed messages have .message.content as a string.
 # Tool results have .message.content as an array. We want the string ones.
 LAST_USER_MSG=""
 if [ -n "$TRANSCRIPT_PATH" ] && [ -f "$TRANSCRIPT_PATH" ]; then
   LAST_USER_MSG=$(grep '"type":"user"' "$TRANSCRIPT_PATH" 2>/dev/null \
     | jq -r 'select(.message.content | type == "string") | .message.content' 2>/dev/null \
-    | tail -1 | head -c 300)
+    | tail -3 | head -c 1000)
 fi
 
 # --- GET SHIT DONE mode ---
