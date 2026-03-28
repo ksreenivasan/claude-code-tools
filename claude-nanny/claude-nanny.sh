@@ -29,7 +29,7 @@ ask() {
   local REASON="$3"
   log "[Nanny] ASK ($LABEL) :: $DESC :: $REASON"
   # Write pending ask so rejection can be detected later
-  echo "[Nanny] ASK ($LABEL) :: $DESC :: $REASON" > /tmp/nanny-pending-${SESSION_ID}
+  echo "[Nanny] ASK ($LABEL) :: $DESC :: $REASON" > $HOME/.claude/nanny-pending-${SESSION_ID}
   local ESC_REASON=$(echo "$REASON" | sed 's/"/\\"/g')
   local ESC_DESC=$(echo "$DESC" | sed 's/"/\\"/g')
   cat <<EOF

@@ -1,6 +1,6 @@
 # Claude Code Tools
 
-Personal Claude Code hooks, plugins, and dev environment setup.
+Personal Claude Code hooks, plugins, and dev environment config.
 
 ## Quick Start
 
@@ -20,6 +20,10 @@ AI-powered safety layer for Claude Code. Evaluates every tool call before execut
 - **Opus evaluation**: Everything else gets evaluated. Errs on the side of allowing — only flags genuinely destructive or dangerous actions
 - **GSD mode**: "Get Shit Done" mode with minimal interruptions. Toggle per-session.
 - **Config guard**: Protects `~/.claude/settings*` and `~/.config/dcg/*` from accidental overwrites
+- **Auto-approve**: Suppresses Claude Code's built-in permission prompts when the nanny already allowed the action
+- **Conversation context**: Reads last 3 user messages from the transcript so Opus can determine if externally-visible actions were explicitly requested
+
+**Important:** Do NOT add `"Bash"` to your `permissions.allow` list in `settings.local.json`. The nanny's `ask` decision is overridden by the allow list — if Bash is blanket-allowed, the nanny can never prompt you for confirmation. The auto-approve hook handles silently approving safe commands instead.
 
 **Test suite**: 33 test cases with parallel execution. Run `claude-nanny/test-nanny-prompt.sh` to verify prompt behavior.
 
