@@ -18,8 +18,9 @@ allow() {
   local LABEL="$1"
   local DESC="$2"
   log "[Nanny] ALLOW ($LABEL) :: $DESC"
+  local ESC_DESC=$(echo "$DESC" | sed 's/\\/\\\\/g; s/"/\\"/g')
   cat <<EOF
-{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow","permissionDecisionReason":"Nanny: $LABEL","additionalContext":"[Nanny sid=${SESSION_ID}] ALLOW ($LABEL) :: $DESC"}}
+{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow","permissionDecisionReason":"Nanny: $LABEL","additionalContext":"[Nanny sid=${SESSION_ID}] ALLOW ($LABEL) :: $ESC_DESC"}}
 EOF
 }
 
@@ -229,9 +230,9 @@ SHORT_CMD=$(echo "$COMMAND" | head -c 120)
 STRIPPED_CMD=$(echo "$COMMAND" | sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d')
 FIRST_WORD=$(echo "$STRIPPED_CMD" | awk '{print $1}')
 
-# Fast-path: read-only commands
+# Fast-path: benign local commands
 case "$FIRST_WORD" in
-  ls|tree|cat|head|tail|wc|file|which|whoami|pwd|echo|printenv|stat|du|df|readlink|realpath|diff|sort|uniq|cut|tr|jq|less|more|strings|xxd|od|hexdump|ldd|nm|objdump|date|cal|bc|expr|seq|nproc|uname|hostname|id|groups|locale|lsb_release|test|\[|true|false|grep|rg|find|cd|chmod|mkdir|touch|cp|mv)
+  ls|tree|cat|head|tail|wc|file|which|whoami|pwd|echo|printenv|stat|du|df|readlink|realpath|diff|sort|uniq|cut|tr|jq|less|more|strings|xxd|od|hexdump|ldd|nm|objdump|date|cal|bc|expr|seq|nproc|uname|hostname|id|groups|locale|lsb_release|test|\[|true|false|grep|rg|find|cd|mkdir|touch|cp)
     allow "fast-path" "$SHORT_CMD"; exit 0 ;;
 esac
 

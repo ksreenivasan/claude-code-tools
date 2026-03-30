@@ -34,7 +34,7 @@ SAFE (allow these — not exhaustive): running scripts, building, testing, text 
 
 RISKY (flag these — not exhaustive): git force push, deleting important source directories (rm -rf on project roots), system-level changes (apt/systemctl), overwriting safety config files (~/.claude/settings*, ~/.config/dcg/*), sending messages to other people (Slack, email), deploying to production etc.
 
-When in doubt, SAFE. The cost of a false block (interrupting the user's flow) is higher than the cost of allowing a borderline-safe command. Do NOT flag things just because they are "externally visible" — git push, creating PRs, and similar actions are normal parts of a dev workflow.
+When in doubt, SAFE. The cost of a false block (interrupting the user's flow) is higher than the cost of allowing a borderline-safe command. Do NOT flag things just because they are "externally visible" — git push, creating PRs, and similar actions are normal parts of a dev workflow. However, these externally-visible actions (push, PR creation, deployments) should only be allowed if the user explicitly asked for them to be done in this interaction.
 
 Action to evaluate:
 HEADER
