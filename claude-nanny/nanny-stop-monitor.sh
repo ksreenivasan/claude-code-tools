@@ -65,7 +65,7 @@ fi
 
 # --- Extract last assistant message (fallback to transcript if not in input) ---
 if [ -z "$LAST_ASST_MSG" ]; then
-  LAST_LINES=$(grep '"role":"assistant"' "$TRANSCRIPT_PATH" 2>/dev/null | tail -n 100)
+  LAST_LINES=$(grep '"type":"assistant"' "$TRANSCRIPT_PATH" 2>/dev/null | tail -n 100)
   if [ -n "$LAST_LINES" ]; then
     LAST_ASST_MSG=$(echo "$LAST_LINES" | jq -rs '
       map(.message.content[]? | select(.type == "text") | .text) | last // ""
@@ -80,9 +80,11 @@ if [ -z "$LAST_ASST_MSG" ]; then
 fi
 
 # --- Extract last 5 user messages from transcript ---
+# NOTE: Transcript uses "type" field (not "role") for both user and assistant messages.
+# Both fields exist but "type" is the canonical one. Do NOT change to "role".
 LAST_USER_MSGS=""
 if [ -f "$TRANSCRIPT_PATH" ]; then
-  LAST_USER_MSGS=$(grep '"role":"user"' "$TRANSCRIPT_PATH" 2>/dev/null \
+  LAST_USER_MSGS=$(grep '"type":"user"' "$TRANSCRIPT_PATH" 2>/dev/null \
     | jq -r 'select(.message.content | type == "string") | .message.content' 2>/dev/null \
     | tail -5 | head -c 2000)
 fi
@@ -298,7 +300,7 @@ case "$VERDICT" in
     # Deeper transcript (last 10 user messages)
     DEEP_USER_MSGS=""
     if [ -f "$TRANSCRIPT_PATH" ]; then
-      DEEP_USER_MSGS=$(grep '"role":"user"' "$TRANSCRIPT_PATH" 2>/dev/null \
+      DEEP_USER_MSGS=$(grep '"type":"user"' "$TRANSCRIPT_PATH" 2>/dev/null \
         | jq -r 'select(.message.content | type == "string") | .message.content' 2>/dev/null \
         | tail -10 | head -c 3000)
     fi
