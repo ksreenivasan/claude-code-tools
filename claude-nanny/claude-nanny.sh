@@ -5,9 +5,9 @@
 # Bash: truly read-only commands get instant allow. Everything else goes to Opus.
 # NEVER returns empty output — always returns an explicit decision.
 # Fail-closed: if AI call fails, prompts user for manual approval.
-# Logs all decisions to ~/.claude/nanny.log
+# Logs all decisions to ~/.claude/nanny-<session_id>.log (session-specific)
 
-LOGFILE="$HOME/.claude/nanny.log"
+LOGFILE=""  # set after SESSION_ID is parsed
 
 log() {
   echo "[$(date '+%H:%M:%S')] $1" >> "$LOGFILE"
@@ -99,6 +99,7 @@ FOOTER
 INPUT=$(cat)
 TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null)
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // empty' 2>/dev/null)
+LOGFILE="$HOME/.claude/nanny-${SESSION_ID}.log"
 TRANSCRIPT_PATH=$(echo "$INPUT" | jq -r '.transcript_path // empty' 2>/dev/null)
 GSD_FILE="$HOME/.claude/nanny-gsd-${SESSION_ID}"
 
@@ -122,7 +123,7 @@ if [ -f "$GSD_FILE" ]; then
 
   # Read-only native tools: instant allow (no Opus needed even normally)
   case "$TOOL_NAME" in
-    Read|Glob|Grep|WebSearch)
+    Read|Glob|Grep|WebSearch|AskUserQuestion|EnterPlanMode|ExitPlanMode)
       allow "GSD" "$TOOL_NAME"
       exit 0 ;;
   esac
@@ -190,6 +191,9 @@ fi
 case "$TOOL_NAME" in
   Read|Glob|Grep|WebSearch)
     allow "read-only" "$TOOL_NAME"
+    exit 0 ;;
+  AskUserQuestion|EnterPlanMode|ExitPlanMode)
+    log "[Nanny] PASSTHROUGH (interactive) :: $TOOL_NAME"
     exit 0 ;;
 esac
 

@@ -21,6 +21,9 @@ INPUT=$(cat)
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // empty' 2>/dev/null)
 PENDING_FILE="$HOME/.claude/nanny-pending-${SESSION_ID}"
 
+# Reset stop monitor nudge counter on new user turn
+rm -f "$HOME/.claude/nanny-stop-count-${SESSION_ID}"
+
 if [ -f "$PENDING_FILE" ]; then
   MSG=$(cat "$PENDING_FILE" | sed 's/"/\\"/g')
   rm -f "$PENDING_FILE"
