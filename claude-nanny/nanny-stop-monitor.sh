@@ -16,6 +16,11 @@
 
 INPUT=$(cat)
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // empty' 2>/dev/null)
+if [ -z "$SESSION_ID" ]; then
+  # No session ID — can't track state, allow stop
+  echo '{"systemMessage": "[Nanny] No session ID — allowing stop."}'
+  exit 0
+fi
 LOGFILE="$HOME/.claude/nanny-${SESSION_ID}.log"
 TRANSCRIPT_PATH=$(echo "$INPUT" | jq -r '.transcript_path // empty' 2>/dev/null)
 STOP_HOOK_ACTIVE=$(echo "$INPUT" | jq -r '.stop_hook_active // "false"' 2>/dev/null)
@@ -33,9 +38,16 @@ log() {
 }
 
 # --- Loop prevention ---
+# If already continuing from a prior nudge AND counter is high, don't nudge again
 CURRENT_COUNT=0
 if [ -f "$COUNTER_FILE" ]; then
   CURRENT_COUNT=$(cat "$COUNTER_FILE" 2>/dev/null || echo "0")
+fi
+
+if [ "$STOP_HOOK_ACTIVE" = "true" ] && [ "$CURRENT_COUNT" -ge 1 ]; then
+  log "stop_hook_active=true with count=$CURRENT_COUNT. Allowing stop to prevent rapid re-nudge."
+  jq -n --arg msg "[Nanny] Already nudged this cycle. Allowing stop." '{"systemMessage": $msg}'
+  exit 0
 fi
 
 if [ "$CURRENT_COUNT" -ge "$MAX_NUDGES" ]; then
@@ -70,7 +82,7 @@ fi
 # --- Extract last 5 user messages from transcript ---
 LAST_USER_MSGS=""
 if [ -f "$TRANSCRIPT_PATH" ]; then
-  LAST_USER_MSGS=$(grep '"type":"user"' "$TRANSCRIPT_PATH" 2>/dev/null \
+  LAST_USER_MSGS=$(grep '"role":"user"' "$TRANSCRIPT_PATH" 2>/dev/null \
     | jq -r 'select(.message.content | type == "string") | .message.content' 2>/dev/null \
     | tail -5 | head -c 2000)
 fi
@@ -146,14 +158,19 @@ HEADER
 
   cat >> "$TMPFILE" <<'FOOTER'
 
+IMPORTANT: Weight the LAST user message most heavily. Prior messages provide context,
+but the user's most recent message defines the current intent.
+
 Evaluate:
-1. Did the assistant complete what the user asked for?
+1. Did the assistant complete what the user asked for in their LAST message?
 2. Did it end with a clear conclusion, or trail off mid-task?
 3. Are there obvious next steps it should have taken but didn't?
 4. Is it correctly waiting for user input (asked a question)? → COMPLETE
+5. Did the user's LAST message ask the agent to pause/wait/hold on (e.g. "wait",
+   "hold on", "take a beat", "one sec", "give me a moment")? → COMPLETE (user wants a pause)
 
 Classification:
-- COMPLETE: Request fully addressed, or correctly waiting for user input
+- COMPLETE: Request fully addressed, correctly waiting for user input, OR user asked to pause
 - PREMATURE: Clearly stopped mid-task with unfinished work that was requested
 - UNCERTAIN: Cannot determine — scope is ambiguous
 
@@ -281,7 +298,7 @@ case "$VERDICT" in
     # Deeper transcript (last 10 user messages)
     DEEP_USER_MSGS=""
     if [ -f "$TRANSCRIPT_PATH" ]; then
-      DEEP_USER_MSGS=$(grep '"type":"user"' "$TRANSCRIPT_PATH" 2>/dev/null \
+      DEEP_USER_MSGS=$(grep '"role":"user"' "$TRANSCRIPT_PATH" 2>/dev/null \
         | jq -r 'select(.message.content | type == "string") | .message.content' 2>/dev/null \
         | tail -10 | head -c 3000)
     fi
