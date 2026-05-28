@@ -1,7 +1,9 @@
 #!/bin/bash
 # Nanny Display — PostToolUse hook that shows the nanny's last decision via systemMessage
 
-LOGFILE="$HOME/.claude/nanny.log"
+INPUT=$(cat)
+SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // empty' 2>/dev/null)
+LOGFILE="$HOME/.claude/nanny-${SESSION_ID}.log"
 
 if [ ! -f "$LOGFILE" ]; then
   exit 0
