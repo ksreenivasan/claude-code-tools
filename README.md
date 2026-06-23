@@ -12,6 +12,10 @@ cd claude-code-tools
 
 ## What's Included
 
+### Working Agreement (`CLAUDE.md`)
+
+My personal Claude Code working agreement — core principles, workflow rules, git practices, anti-patterns, and verification habits. Drop it at `~/.claude/CLAUDE.md` (or symlink it) to apply to all Claude Code sessions on your machine, or fork it as a starting template for your own.
+
 ### Claude Nanny (`claude-nanny/`)
 
 AI-powered safety layer for Claude Code. Evaluates every tool call before execution using Opus as a judge.
