@@ -126,6 +126,7 @@ One command to set up everything:
 2. Installs [DCG](https://github.com/Dicklesworthstone/destructive_command_guard) (Destructive Command Guard)
 3. Installs Claude Code plugins from public marketplaces
 4. Wires hooks into `~/.claude/settings.json`
+5. (Optional, prompted) Installs Moraine for cross-session search
 
 ### Settings Template (`setup/settings-template.json`)
 
@@ -151,6 +152,19 @@ All from public sources:
 | plugin-dev | claude-plugins-official | Plugin development |
 | claude-code-setup | claude-plugins-official | Setup recommendations |
 | skill-creator | claude-plugins-official | Skill authoring |
+
+### Moraine — Cross-Session Search (`setup/install-moraine.sh`)
+
+[Moraine](https://github.com/eric-tramel/moraine) is a local trace DB for agent sessions. It indexes your Claude Code (and other harness) transcripts into a local ClickHouse, serves a monitor UI, and exposes session search to agents over MCP — so "which session did I work on X in?" becomes a query instead of grepping `~/.claude/projects`.
+
+`install.sh` prompts to install it, or run `setup/install-moraine.sh` directly. The script:
+1. Installs `moraine-cli` (via `uv`, falling back to Moraine's official bundle installer)
+2. Starts the stack — ClickHouse, ingest, monitor UI (http://127.0.0.1:8080), and the MCP server
+3. Registers the Moraine MCP server in `~/.claude.json` (backed up first; idempotent)
+
+After install, restart Claude Code and run `/mcp` to confirm `moraine` is connected. The `search_sessions`, `list_sessions`, and `open` tools then let any session search history. Manage services with `moraine status | up | down`.
+
+**Note:** the first `moraine up` downloads a ClickHouse build (~175MB) into `~/.local/lib/moraine`. Everything stays local — nothing leaves your machine unless you configure a remote backend yourself.
 
 ## Optional: Peon-Ping
 
