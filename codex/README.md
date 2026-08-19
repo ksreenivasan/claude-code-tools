@@ -12,8 +12,8 @@ search.
 | `~/.codex/AGENTS.md` | Define autonomy, risky-action review, verification, GSD mode, and Moraine memory behavior |
 | `~/.codex/rules/default.rules` | Route recognizable destructive command families through the reviewer |
 | `stop-nanny.py` | Optional completion reviewer; retained in the repository but not installed by default |
-| `~/.codex/skills/tmux-nanny` | Supervise and coordinate pane agents while keeping the nanny in the control plane |
-| Moraine plugin and `moraine-history` skill | Search older agent sessions through local MCP tools |
+| `~/.codex/skills/<name>` | Install every repository-owned portable skill from [`../skills/`](../skills/) |
+| Moraine plugin and Codex `moraine-history` adapter | Search older agent sessions through local MCP tools |
 | Moraine launch agents | Keep ClickHouse, ingest, and the backend alive outside per-session sandboxes |
 
 DCG is intentionally not installed. Its `PreToolUse` hook can only allow or
@@ -36,7 +36,7 @@ The installer:
 1. Preserves unrelated `config.toml` settings while merging the three
    permission keys.
 2. Backs up and installs the global instructions and command rules.
-3. Installs the `tmux-nanny` skill.
+3. Installs every canonical portable skill from [`../skills/`](../skills/), with recoverable backups outside skill discovery.
 4. Leaves the optional Stop nanny uninstalled.
 5. Installs Moraine's official Codex plugin and the `moraine-history` skill.
 6. On macOS, installs three launchd services for persistent Moraine startup.
@@ -60,8 +60,8 @@ nanny setup and is largely unnecessary with that nanny in place. The standalone
 `codex/install-stop-nanny.sh` installer remains available for explicit use;
 individual non-managed hooks can then be disabled with `/hooks`.
 
-Invoke the supervisor with `$tmux-nanny`, or ask Codex to supervise agents in
-tmux. The nanny stays in the control plane: it delegates substantive coding,
+Invoke the supervisor explicitly with `$tmux-nanny`. The nanny stays in the
+control plane: it delegates substantive coding,
 testing, documentation, research, repository maintenance, and Git work to pane
 agents, then inspects their evidence. Before dispatch it records checkout and
 file ownership; concurrent writers in one repository default to separate
@@ -115,6 +115,7 @@ historical errors, branches, files, or other agents. The official plugin exposes
 codex --strict-config --version
 codex/test-rules.sh
 codex/test-install.sh
+setup/test-portable-skills.sh
 setup/test-tmux-nanny.sh
 codex/test-stop-nanny.sh
 ~/.codex/skills/moraine-history/scripts/health-check.sh
@@ -149,9 +150,12 @@ exposure, or bypassing the sandbox and automatic reviewer.
 - Keep [`AGENTS.md`](AGENTS.md), [`default.rules`](default.rules),
   [`stop-nanny.py`](stop-nanny.py), and the Moraine skill as source-controlled
   sources of truth.
-- Keep [`../skills/tmux-nanny/SKILL.md`](../skills/tmux-nanny/SKILL.md) as the
-  single source for both Codex and Pi. Their installers copy that same skill;
-  do not add harness-local copies.
+- Keep every repository-owned, harness-neutral skill under [`../skills/`](../skills/)
+  as a single source for both Codex and Pi; do not add harness-local duplicates.
+- Pi targets a superset of portable Codex skills. Do not copy Codex `.system`,
+  bundled, runtime, curated, or plugin-cache skills into the portable root.
+- Keep explicit harness adapters when tools or paths differ, and claim parity
+  only after equivalent Pi support is implemented and validated.
 - Keep the installers idempotent and preserve unrelated user configuration.
 - Add positive and negative examples for every new command rule.
 - Run both test scripts after changing rules or Stop behavior.

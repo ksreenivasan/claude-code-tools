@@ -55,16 +55,6 @@ install_with_backup() {
   echo "Installed: $destination"
 }
 
-replace_symlink_with_backup() {
-  local destination="$1"
-  local backup="$2"
-  if [ ! -L "$destination" ]; then
-    return
-  fi
-  backup_symlink "$destination" "$backup"
-  rm "$destination"
-}
-
 materialize_symlink_with_backup() {
   local destination="$1"
   local backup="$2"
@@ -100,14 +90,11 @@ materialize_symlink_with_backup() {
 
 install_with_backup "$SCRIPT_DIR/AGENTS.md" "$CODEX_DIR/AGENTS.md"
 install_with_backup "$SCRIPT_DIR/default.rules" "$RULES_DIR/default.rules"
-TMUX_NANNY_DIR="$CODEX_DIR/skills/tmux-nanny"
-TMUX_NANNY_BACKUP_DIR="$CODEX_DIR/backups/tmux-nanny"
-replace_symlink_with_backup "$TMUX_NANNY_DIR" "$TMUX_NANNY_BACKUP_DIR/directory.backup.$STAMP"
-mkdir -p "$TMUX_NANNY_DIR/agents"
-replace_symlink_with_backup "$TMUX_NANNY_DIR/SKILL.md" "$TMUX_NANNY_BACKUP_DIR/SKILL.md.backup.$STAMP"
-replace_symlink_with_backup "$TMUX_NANNY_DIR/agents/openai.yaml" "$TMUX_NANNY_BACKUP_DIR/openai.yaml.backup.$STAMP"
-install_with_backup "$SCRIPT_DIR/../skills/tmux-nanny/SKILL.md" "$TMUX_NANNY_DIR/SKILL.md"
-install_with_backup "$SCRIPT_DIR/../skills/tmux-nanny/agents/openai.yaml" "$TMUX_NANNY_DIR/agents/openai.yaml"
+"$SCRIPT_DIR/../setup/install-shared-skills.sh" \
+  "$SCRIPT_DIR/../skills" \
+  "$CODEX_DIR/skills" \
+  "$CODEX_DIR/backups" \
+  "$STAMP"
 materialize_symlink_with_backup "$CONFIG" "$CODEX_DIR/backups/config.toml.symlink.backup.$STAMP"
 
 python3 - "$CONFIG" "$STAMP" <<'PY'
@@ -203,8 +190,9 @@ print(f"Merged: {path}")
 PY
 
 echo
-echo "Validating rules, tmux-nanny skill, and Stop behavior..."
+echo "Validating rules, portable skills, tmux-nanny behavior, and Stop behavior..."
 "$SCRIPT_DIR/test-rules.sh"
+"$SCRIPT_DIR/../setup/test-portable-skills.sh"
 "$SCRIPT_DIR/../setup/test-tmux-nanny.sh"
 "$SCRIPT_DIR/test-stop-nanny.sh"
 

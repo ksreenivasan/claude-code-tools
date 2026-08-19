@@ -1,6 +1,7 @@
 ---
 name: tmux-nanny
 description: Supervise coding agents running in tmux by identifying pane assignments, maintaining a live ledger, monitoring progress, intervening minimally, coordinating panes, and verifying completion. Use when the user asks to watch, nanny, coordinate, or supervise agents or tmux panes.
+disable-model-invocation: true
 compatibility: Requires tmux and permission to inspect and interact with the selected tmux session.
 ---
 
@@ -49,6 +50,7 @@ Use one primary state per pane:
 - **Failed** — the agent or its task failed and needs recovery or escalation.
 - **Completed, unverified** — completion is claimed but evidence is missing.
 - **Completed, verified** — the goal and its required evidence are satisfied.
+- **Awaiting cleanup confirmation** — completion is verified and the pane remains visible pending the user's explicit permission to retire it.
 
 A spinner, command stream, or rising token count is not itself progress. Update the ledger when a pane's goal, state, ownership, or next expected event changes.
 
@@ -131,6 +133,17 @@ Coordination rules:
 - Sequence integration and final verification after component work is stable.
 - Never invent work for an idle pane; assignments come from the user or an agreed plan.
 
+## Manage pane lifecycle
+
+Treat panes as disposable subagent slots, created or repurposed only while work
+is in flight. Name and assign each pane. Do not retire a pane with unverified
+work. After verified completion, collect the required completion report, mark
+the pane **Awaiting cleanup confirmation**, and ask the user whether to retire
+it. Keep the pane visible; do not exit the agent or delete the pane until the
+user explicitly confirms. If the user declines or has not answered, leave it
+intact. If preserving the tmux session after confirmed cleanup, keep at most one
+clean non-agent shell anchor.
+
 ## Verify rather than trust
 
 Prefer evidence in this order:
@@ -212,7 +225,7 @@ Default policy unless the user says otherwise:
 
 - Steer and recover agents automatically within their existing scope.
 - Ask the user only for material decisions or new authority.
-- Leave completed agents idle rather than closing them.
+- Ask for explicit user confirmation before stopping an agent or deleting its completed pane; otherwise leave it intact.
 - Warn on loops or disproportionate resource use instead of enforcing a fixed budget.
 - Delegate implementation and verification to pane agents; personally inspect their evidence without taking over the work.
 - Maintain a concise intervention trail in conversation; create a separate run log only for long or high-risk supervision.

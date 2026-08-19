@@ -11,8 +11,8 @@ setup reproducible.
 | `safety-review.ts` | Independently reviews recognized risky tool calls with a child Pi process |
 | `stop-nanny.ts` | Available but disabled completion reviewer; retained for later tuning |
 | `notify.ts` | Native terminal notification when Pi is genuinely idle |
-| `moraine-history` | Health check and workflow for historical session retrieval |
-| `tmux-nanny` | Supervises coding agents across tmux panes until their work is verified |
+| Portable skills | Installs every repository-owned skill from [`../skills/`](../skills/), including recon, evaluation, review, MCP-building, and explicit tmux supervision |
+| Pi `moraine-history` adapter | Health check and Pi-native workflow for historical session retrieval |
 | Official `pi-mcp-extension` | Exposes Moraine's MCP tools to Pi |
 | Pi subagent extension | Runs isolated scout, planner, worker, reviewer, and simplifier agents |
 | Prompt templates | `/scout-and-plan`, `/implement-and-review`, and `/review` |
@@ -31,16 +31,20 @@ The installer:
 1. Runs deterministic extension tests.
 2. Backs up and installs the global working agreement.
 3. Installs this directory as a local Pi package.
-4. Copies the shared repository-owned `tmux-nanny` skill.
+4. Copies every canonical portable skill from [`../skills/`](../skills/), with recoverable backups outside skill discovery.
 5. Copies Pi's maintained subagent extension from the active Pi installation.
 6. Installs the personal agent definitions.
 7. Configures Moraine's official Pi MCP bridge and persistent launch agents.
 8. Installs the Moraine history skill.
 
 Run `/reload` in an existing Pi session after installation. Invoke the nanny
-explicitly with `/skill:tmux-nanny`, or ask Pi to supervise agents in tmux.
-Both Pi and Codex install the canonical skill at
-[`../skills/tmux-nanny/SKILL.md`](../skills/tmux-nanny/SKILL.md).
+explicitly with `/skill:tmux-nanny`.
+Both Pi and Codex install every canonical skill under [`../skills/`](../skills/).
+Pi targets a superset of portable Codex skills. Codex `.system` skills and
+bundled, runtime, curated, or plugin-cache capabilities remain harness-native
+and must not be copied blindly. When a capability needs different tools or
+paths, keep explicit harness adapters and claim parity only after equivalent Pi
+support is implemented and validated.
 
 ## Safety review
 
@@ -85,6 +89,7 @@ Moraine is owned by these launch agents on macOS:
 
 ```bash
 pi/test.sh
+setup/test-portable-skills.sh
 ~/.pi/agent/skills/moraine-history/scripts/health-check.sh
 pi list
 ```

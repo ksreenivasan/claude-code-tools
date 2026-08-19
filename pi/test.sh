@@ -14,4 +14,5 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 node "$SCRIPT_DIR/tests/extensions.test.ts"
+"$SCRIPT_DIR/../setup/test-portable-skills.sh"
 "$SCRIPT_DIR/../setup/test-tmux-nanny.sh"

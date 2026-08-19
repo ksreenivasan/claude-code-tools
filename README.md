@@ -69,6 +69,28 @@ Pi-native resources:
 
 See the [Pi setup guide](pi/README.md).
 
+### Portable Agent Skills (`skills/`)
+
+Repository-owned, harness-neutral skills have one canonical directory under
+`skills/` and are installed in both Codex and Pi:
+
+| Skill | Purpose |
+| --- | --- |
+| `codebase-recon` | Read-only Git-history reconnaissance |
+| `caveman` | Lossless, aggressively terse wording |
+| `skill-evaluator` | Paired empirical evaluation of agent skills |
+| `grill-me` | High-information questioning of plans and decisions |
+| `fresheyes` | Clean-context independent review |
+| `mcp-builder` | Task-oriented MCP server design and evaluation |
+| `tmux-nanny` | Explicit tmux-agent supervision |
+
+Pi targets a superset of portable Codex skills. Codex `.system` skills and
+bundled, curated, runtime, or plugin-cache capabilities remain harness-native;
+they are not portable merely because they are enabled and must not be copied
+blindly. Capabilities that require harness-specific tools or paths use explicit
+adapters, such as the separate Codex and Pi Moraine skills, and count as parity
+only after equivalent Pi behavior is implemented and validated.
+
 ### Claude Nanny (`claude-nanny/`)
 
 AI-powered safety layer for Claude Code. Evaluates every tool call before execution using Opus as a judge.

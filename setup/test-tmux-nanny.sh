@@ -16,6 +16,7 @@ frontmatter = (
     "---\n"
     "name: tmux-nanny\n"
     "description: Supervise coding agents running in tmux by identifying pane assignments, maintaining a live ledger, monitoring progress, intervening minimally, coordinating panes, and verifying completion. Use when the user asks to watch, nanny, coordinate, or supervise agents or tmux panes.\n"
+    "disable-model-invocation: true\n"
     "compatibility: Requires tmux and permission to inspect and interact with the selected tmux session.\n"
     "---\n\n"
 )
@@ -38,12 +39,7 @@ PY
 
 test -f "$METADATA"
 grep -Fq 'default_prompt: "Use $tmux-nanny ' "$METADATA"
-grep -Fq 'TMUX_NANNY_BACKUP_DIR="$CODEX_DIR/backups/tmux-nanny"' "$REPO_DIR/codex/install.sh"
-grep -Fq 'replace_symlink_with_backup "$TMUX_NANNY_DIR"' "$REPO_DIR/codex/install.sh"
-grep -Fq 'install_with_backup "$SCRIPT_DIR/../skills/tmux-nanny/SKILL.md"' "$REPO_DIR/codex/install.sh"
-grep -Fq 'install_with_backup "$SCRIPT_DIR/../skills/tmux-nanny/agents/openai.yaml"' "$REPO_DIR/codex/install.sh"
-grep -Fq 'TMUX_NANNY_BACKUP="$PI_DIR/backups/tmux-nanny/' "$REPO_DIR/pi/install.sh"
-grep -Fq 'install_dir "$TMUX_NANNY_SOURCE" "$TMUX_NANNY_DESTINATION"' "$REPO_DIR/pi/install.sh"
+grep -Fq 'allow_implicit_invocation: false' "$METADATA"
 grep -Fq 'SKILL_BACKUP="$TARGET_HOME/.codex/backups/moraine-history/' "$REPO_DIR/setup/install-moraine.sh"
 grep -Fq 'MORAINE_SKILL_BACKUP="$PI_DIR/backups/moraine-history/' "$REPO_DIR/pi/install.sh"
 test ! -e "$REPO_DIR/codex/skills/tmux-nanny/SKILL.md"

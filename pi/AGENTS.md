@@ -31,20 +31,21 @@ For ordinary web search, prefer `codex_search` when available. Use `pi-web-acces
 
 ## Core working principles
 
-- Prefer the smallest change that fully solves the request. Avoid drive-by
-  refactors and unrequested features.
+- Default to the smallest solution that fully solves the requested problem.
+  Avoid drive-by refactors and unrequested features. Follow the user's current
+  posture on simplicity and rigor; it may be deliberately tuned over time.
 - Find root causes. Do not hide failures behind silent exception handling or
   unexplained temporary workarounds.
-- Verify rather than assume: exercise the changed path and run relevant tests,
-  linters, and type checks in proportion to risk.
+- Keep verification and safeguards proportionate. Do not turn tiny bug fixes,
+  small experiments, or local development into production-hardening exercises.
+  Do not add tests, audits, rollback machinery, exhaustive checks, or
+  abstractions unless they materially reduce likely risk or the user asks.
+  Direct lightweight verification is often enough. Scale testing, review, and
+  rollback rigor with complexity, realistic blast radius, irreversibility, and
+  production impact.
 - Match the repository's existing style, patterns, and dependencies.
 - Preserve user changes and stay within scope. Surface adjacent issues instead
   of silently fixing them.
-- Do not be overtly defensive or let routine work become ridiculously
-  complex. Keep safeguards proportionate to realistic risk: ordinary reversible
-  or easily recovered work should proceed directly. Create rollback machinery
-  only when the likely impact justifies it; recovery can usually be worked out
-  if genuinely needed.
 
 ## Autonomy and safety
 
@@ -103,6 +104,16 @@ In GSD mode:
   actions. Use a safer route; ask only if no safe route can advance the task.
 
 ## Workflow
+
+### Portable skills
+
+Repository-owned, harness-neutral skills live in `skills/<name>/` in
+`claude-code-tools` and must install to both Codex and Pi. Pi targets a superset
+of portable Codex skills. Codex bundled/system skills and plugin-cache skills
+are harness-native implementation details and must not be copied into Pi
+blindly. When a capability needs harness-specific tools or paths, keep explicit
+Codex and Pi adapters and do not claim parity until the Pi adapter provides and
+validates equivalent behavior.
 
 ### Planning and persistence
 

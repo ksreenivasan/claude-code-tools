@@ -2,3 +2,5 @@ interface:
   display_name: "Tmux Nanny"
   short_description: "Supervise coding agents across tmux panes"
   default_prompt: "Use $tmux-nanny to supervise the coding agents in tmux while staying in the control plane."
+policy:
+  allow_implicit_invocation: false

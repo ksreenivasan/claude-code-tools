@@ -69,22 +69,13 @@ install_file "$SCRIPT_DIR/AGENTS.md" "$PI_DIR/AGENTS.md"
 # remains packaged but is intentionally disabled in package.json.
 PI_CODING_AGENT_DIR="$PI_DIR" "$PI_BIN" install "$SCRIPT_DIR"
 
-# Codex and Pi install the same repository-owned tmux-nanny skill. Keep stale
-# copies outside skills/ so Pi cannot discover a backup as a duplicate skill.
-TMUX_NANNY_SOURCE="$REPO_DIR/skills/tmux-nanny"
-TMUX_NANNY_DESTINATION="$PI_DIR/skills/tmux-nanny"
-TMUX_NANNY_BACKUP="$PI_DIR/backups/tmux-nanny/tmux-nanny.backup.$STAMP"
-if [ -L "$TMUX_NANNY_DESTINATION" ] || { [ -e "$TMUX_NANNY_DESTINATION" ] && ! diff -qr "$TMUX_NANNY_SOURCE" "$TMUX_NANNY_DESTINATION" >/dev/null; }; then
-  mkdir -p "$(dirname "$TMUX_NANNY_BACKUP")"
-  if [ -L "$TMUX_NANNY_DESTINATION" ]; then
-    cp -P "$TMUX_NANNY_DESTINATION" "$TMUX_NANNY_BACKUP"
-  else
-    cp -R "$TMUX_NANNY_DESTINATION" "$TMUX_NANNY_BACKUP"
-  fi
-  rm -rf "$TMUX_NANNY_DESTINATION"
-  echo "Backed up: $TMUX_NANNY_BACKUP"
-fi
-install_dir "$TMUX_NANNY_SOURCE" "$TMUX_NANNY_DESTINATION"
+# Install every repository-owned, harness-neutral skill. Backups stay outside
+# skills/ so Pi cannot discover stale copies as duplicate skills.
+"$REPO_DIR/setup/install-shared-skills.sh" \
+  "$REPO_DIR/skills" \
+  "$PI_DIR/skills" \
+  "$PI_DIR/backups" \
+  "$STAMP"
 
 # Use Pi's maintained subagent extension from the installed Pi version while
 # keeping personal agent prompts in this repository.
