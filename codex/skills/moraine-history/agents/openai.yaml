@@ -1,0 +1,4 @@
+interface:
+  display_name: "Moraine History"
+  short_description: "Recover context from earlier agent sessions"
+  default_prompt: "Use $moraine-history to find the relevant context from my older agent sessions."

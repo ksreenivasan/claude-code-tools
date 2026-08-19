@@ -129,7 +129,7 @@ One command to set up everything:
 1. Copies nanny hooks to `~/.claude/hooks/claude-nanny/`
 2. Installs Claude Code plugins from public marketplaces
 3. Wires hooks into `~/.claude/settings.json`
-4. (Optional, prompted) Installs Moraine for cross-session search
+4. Installs Moraine for cross-session search
 
 ### Settings Template (`setup/settings-template.json`)
 
@@ -160,14 +160,15 @@ All from public sources:
 
 [Moraine](https://github.com/eric-tramel/moraine) is a local trace DB for agent sessions. It indexes your Claude Code (and other harness) transcripts into a local ClickHouse, serves a monitor UI, and exposes session search to agents over MCP — so "which session did I work on X in?" becomes a query instead of grepping `~/.claude/projects`.
 
-`install.sh` prompts to install it, or run `setup/install-moraine.sh` directly. The script:
-1. Installs `moraine-cli` (via `uv`, falling back to Moraine's official bundle installer)
-2. Starts the stack — ClickHouse, ingest, monitor UI (http://127.0.0.1:8080), and the MCP server
-3. Registers the Moraine MCP server in `~/.claude.json` (backed up first; idempotent)
+`install.sh` installs it by default, or run `setup/install-moraine.sh claude-code` directly. The script:
+1. Installs `moraine-cli` via `uv`
+2. Registers the official harness integration
+3. On macOS, installs launchd-owned ClickHouse, ingest, and backend services so
+   they survive agent-session sandbox teardown and restart at login
 
-After install, restart Claude Code and run `/mcp` to confirm `moraine` is connected. The `search_sessions`, `list_sessions`, and `open` tools then let any session search history. Manage services with `moraine status | up | down`.
+After install, restart the agent harness and confirm the Moraine plugin is connected. The `search_sessions`, `list_sessions`, `file_attention`, and `open` tools then let any session search history. Use `moraine status` to inspect the host services.
 
-**Note:** the first `moraine up` downloads a ClickHouse build (~175MB) into `~/.local/lib/moraine`. Everything stays local — nothing leaves your machine unless you configure a remote backend yourself.
+**Note:** the first startup downloads a ClickHouse build (~175MB) into `~/.local/lib/moraine`. Everything stays local — nothing leaves your machine unless you configure a remote backend yourself.
 
 ## Optional: Peon-Ping
 

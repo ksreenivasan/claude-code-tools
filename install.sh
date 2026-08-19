@@ -70,17 +70,9 @@ else
   echo "  (Automated merge would risk overwriting your existing settings.)"
 fi
 
-# --- Optional: Moraine (cross-session search) ---
-# Prompt only when running interactively; non-interactive installs skip it.
-if [ -t 0 ]; then
-  echo ""
-  read -r -p "Install Moraine for cross-session search? Downloads ~175MB ClickHouse on first run. [y/N] " MORAINE_ANS
-  if [[ "${MORAINE_ANS:-}" =~ ^[Yy] ]]; then
-    "$SCRIPT_DIR/setup/install-moraine.sh"
-  else
-    echo "  Skipped. Run setup/install-moraine.sh later to add it."
-  fi
-fi
+# --- 4. Install persistent Moraine cross-session search ---
+echo "[4/4] Installing Moraine..."
+"$SCRIPT_DIR/setup/install-moraine.sh" claude-code
 
 echo ""
 echo "Done! Restart Claude Code for hooks to take effect."
