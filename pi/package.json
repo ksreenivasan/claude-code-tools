@@ -1,0 +1,16 @@
+{
+  "name": "kartik-pi-tools",
+  "private": true,
+  "type": "module",
+  "keywords": ["pi-package"],
+  "pi": {
+    "extensions": [
+      "./extensions/safety-review.ts",
+      "./extensions/notify.ts"
+    ],
+    "prompts": ["./prompts"]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  }
+}

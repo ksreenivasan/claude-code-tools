@@ -1,20 +1,73 @@
 # Claude Code Tools
 
-Personal Claude Code hooks, plugins, and dev environment config.
+Personal Claude Code, Codex, and Pi hooks, permission policies, skills,
+plugins, and development environment configuration.
 
 ## Quick Start
 
 ```bash
 git clone git@github.com:ksreenivasan/claude-code-tools.git
 cd claude-code-tools
+
+# Claude Code
 ./install.sh
+
+# Codex core setup
+./codex/install.sh
+
+# Pi setup
+./pi/install.sh
 ```
+
+### Tmux Configuration (`tmux/`)
+
+The current `~/.tmux.conf` is preserved verbatim in `tmux/tmux.conf`. It enables
+extended keys, mouse-backed history, a larger scrollback buffer, and subtle
+inactive-pane dimming. It is stored here for now without imposing a permanent
+dotfiles layout or installer.
+
+The Codex installer preserves the rest of `~/.codex/config.toml`, backs up
+different instruction/rule files, installs persistent Moraine integration, and
+runs the deterministic tests. The optional Stop nanny remains uninstalled.
 
 ## What's Included
 
 ### Working Agreement (`CLAUDE.md`)
 
 My personal Claude Code working agreement — core principles, workflow rules, git practices, anti-patterns, and verification habits. Drop it at `~/.claude/CLAUDE.md` (or symlink it) to apply to all Claude Code sessions on your machine, or fork it as a starting template for your own.
+
+### Codex Auto-review (`codex/`)
+
+A Codex-native counterpart to Claude Nanny's low-friction safety model:
+
+- Routine, reversible work proceeds without interrupting you
+- Risky command families are routed to a separate automatic reviewer
+- Broad deletion, destructive Git operations, and external mutations receive
+  additional scrutiny
+- Explicit "GSD", "go ham", and "don't ask" requests enable a scoped
+  high-autonomy mode without disabling core safety boundaries
+- An optional Stop completion evaluator remains available but uninstalled
+  because it interferes with the existing nanny setup and is largely unnecessary
+- Moraine searches older sessions and runs as a persistent host service
+- A shared tmux nanny supervises pane agents while delegating substantive work
+- Copy-ready global instructions, command rules, and config settings make a
+  new-machine setup repeatable
+
+See the [Codex setup guide](codex/README.md).
+
+### Pi Auto-review and Skills (`pi/`)
+
+The Pi port provides the same working agreement and low-friction autonomy using
+Pi-native resources:
+
+- Contextual independent review for recognized risky tool calls
+- An available but currently disabled completion reviewer on `agent_settled`
+- Moraine session search through the official Pi MCP extension
+- Native notifications when Pi is genuinely idle
+- Scout, planner, worker, reviewer, and simplifier subagents
+- Reusable review and implementation prompt templates
+
+See the [Pi setup guide](pi/README.md).
 
 ### Claude Nanny (`claude-nanny/`)
 

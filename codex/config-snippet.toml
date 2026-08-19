@@ -1,0 +1,6 @@
+# Merge these top-level keys into ~/.codex/config.toml. Do not overwrite the
+# whole file: a machine may already have model, feature, plugin, or MCP config.
+
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+approvals_reviewer = "auto_review"
