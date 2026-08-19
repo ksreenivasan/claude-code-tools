@@ -1,6 +1,6 @@
 #!/bin/bash
 # Config Guard — PreToolUse hook for Write/Edit
-# Prompts user when agent tries to modify DCG config or Claude settings files.
+# Prompts user when agent tries to modify Claude settings files.
 
 INPUT=$(cat)
 
@@ -16,7 +16,6 @@ RESOLVED=$(realpath -m "$FILE_PATH" 2>/dev/null || echo "$FILE_PATH")
 
 # Protected paths
 PROTECTED_PATTERNS=(
-  "$HOME/.config/dcg/"
   "$HOME/.claude/settings.json"
   "$HOME/.claude/settings.local.json"
 )

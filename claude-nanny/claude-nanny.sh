@@ -54,7 +54,7 @@ Err on the side of ALLOWING commands. The user is actively working on a task wit
 
 SAFE (allow these — not exhaustive): running scripts, building, testing, text processing, installing packages, reading, writing, editing projects and artifacts, git operations that stay local (including checkout, reset, rebase, merge) or even other ones that seem necessary for the task at hand, shell expansion, piping commands together, running dev tools etc. Skills, agents, subagents, code review tools and review loops are almost always SAFE.
 
-RISKY (flag these — not exhaustive): git force push, deleting important source directories (rm -rf on project roots), system-level changes (apt/systemctl), overwriting safety config files (~/.claude/settings*, ~/.config/dcg/*), sending messages to other people (Slack, email), deploying to production etc.
+RISKY (flag these — not exhaustive): git force push, deleting important source directories (rm -rf on project roots), system-level changes (apt/systemctl), overwriting safety config files (~/.claude/settings*), sending messages to other people (Slack, email), deploying to production etc.
 
 When in doubt, SAFE. The cost of a false block (interrupting the user's flow) is higher than the cost of allowing a borderline-safe command. Do NOT flag things just because they are "externally visible" — git push, creating PRs, and similar actions are normal parts of a dev workflow. However, these externally-visible actions (push, PR creation, deployments) should only be allowed if the user explicitly asked for them to be done in this interaction.
 

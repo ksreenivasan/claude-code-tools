@@ -23,7 +23,7 @@ AI-powered safety layer for Claude Code. Evaluates every tool call before execut
 - **Fast-path**: Instant allow for read-only tools, safe Bash commands, git read-only subcommands
 - **Opus evaluation**: Everything else gets evaluated. Errs on the side of allowing — only flags genuinely destructive or dangerous actions
 - **GSD mode**: "Get Shit Done" mode with minimal interruptions. Toggle per-session.
-- **Config guard**: Protects `~/.claude/settings*` and `~/.config/dcg/*` from accidental overwrites
+- **Config guard**: Protects `~/.claude/settings*` from accidental overwrites
 - **Auto-approve**: Suppresses Claude Code's built-in permission prompts when the nanny already allowed the action
 - **Conversation context**: Reads last 3 user messages from the transcript so Opus can determine if externally-visible actions were explicitly requested
 
@@ -127,10 +127,9 @@ The nanny replaces Claude Code's built-in permission heuristics. Three hooks coo
 
 One command to set up everything:
 1. Copies nanny hooks to `~/.claude/hooks/claude-nanny/`
-2. Installs [DCG](https://github.com/Dicklesworthstone/destructive_command_guard) (Destructive Command Guard)
-3. Installs Claude Code plugins from public marketplaces
-4. Wires hooks into `~/.claude/settings.json`
-5. (Optional, prompted) Installs Moraine for cross-session search
+2. Installs Claude Code plugins from public marketplaces
+3. Wires hooks into `~/.claude/settings.json`
+4. (Optional, prompted) Installs Moraine for cross-session search
 
 ### Settings Template (`setup/settings-template.json`)
 

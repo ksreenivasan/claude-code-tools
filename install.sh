@@ -26,26 +26,8 @@ cp "$SCRIPT_DIR/claude-nanny/test-nanny-prompt.sh" "$HOOKS_DIR/claude-nanny/"
 chmod +x "$HOOKS_DIR/claude-nanny/"*.sh
 echo "  Done."
 
-# --- 2. Install DCG (Destructive Command Guard) ---
-echo "[2/4] Installing DCG..."
-if command -v dcg &>/dev/null; then
-  echo "  DCG already installed."
-else
-  if command -v pipx &>/dev/null; then
-    pipx install destructive_command_guard
-    echo "  Installed via pipx."
-  elif command -v pip &>/dev/null; then
-    pip install --user destructive_command_guard
-    echo "  Installed via pip."
-  else
-    echo "  WARNING: Neither pipx nor pip found. Install DCG manually:"
-    echo "    pip install destructive_command_guard"
-    echo "    See: https://github.com/Dicklesworthstone/destructive_command_guard"
-  fi
-fi
-
-# --- 3. Install Claude Code plugins ---
-echo "[3/4] Installing plugins..."
+# --- 2. Install Claude Code plugins ---
+echo "[2/4] Installing plugins..."
 
 # Check if claude CLI is available
 if ! command -v claude &>/dev/null; then
@@ -75,8 +57,8 @@ else
   done
 fi
 
-# --- 4. Wire hooks into settings.json ---
-echo "[4/4] Wiring hooks into settings.json..."
+# --- 3. Wire hooks into settings.json ---
+echo "[3/4] Wiring hooks into settings.json..."
 
 if [ ! -f "$SETTINGS" ]; then
   # No existing settings — use template directly (expand $HOME)
