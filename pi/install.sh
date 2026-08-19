@@ -7,6 +7,60 @@ TARGET_HOME="${PI_SETUP_HOME:-$HOME}"
 PI_DIR="$TARGET_HOME/.pi/agent"
 STAMP="$(date '+%Y%m%d-%H%M%S')"
 PI_BIN="$(command -v pi 2>/dev/null || true)"
+MCP_EXTENSION_SOURCE="npm:pi-mcp-extension@1.5.0"
+
+configure_notion_mcp() {
+  mkdir -p "$PI_DIR/mcp-auth"
+  chmod 0700 "$PI_DIR/mcp-auth"
+
+  python3 - "$PI_DIR/mcp.json" <<'PY'
+import json
+import os
+import sys
+import tempfile
+
+path = sys.argv[1]
+desired = {
+    "transport": "streamable-http",
+    "url": "https://mcp.notion.com/mcp",
+    "auth": {"type": "oauth"},
+    "lifecycle": "lazy",
+}
+
+if os.path.exists(path):
+    with open(path, encoding="utf-8") as handle:
+        data = json.load(handle)
+else:
+    data = {}
+
+servers = data.setdefault("mcpServers", {})
+if not isinstance(servers, dict):
+    raise SystemExit(f"ERROR: mcpServers must be an object in {path}")
+
+changed = servers.get("notion") != desired
+servers["notion"] = desired
+if changed or not os.path.exists(path):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        mode="w", encoding="utf-8", dir=os.path.dirname(path), delete=False
+    ) as handle:
+        json.dump(data, handle, indent=2)
+        handle.write("\n")
+        temporary = handle.name
+    os.chmod(temporary, 0o600)
+    os.replace(temporary, path)
+    print(f"Configured hosted Notion MCP: {path}")
+else:
+    print(f"Unchanged hosted Notion MCP: {path}")
+os.chmod(path, 0o600)
+PY
+}
+
+if [ "${1:-}" = "--configure-notion-mcp" ]; then
+  mkdir -p "$PI_DIR"
+  configure_notion_mcp
+  exit 0
+fi
 
 if [ -z "$PI_BIN" ]; then
   echo "ERROR: pi is required." >&2
@@ -104,6 +158,8 @@ fi
 # custom history skill adds the workflow and health-check policy. Keep stale
 # copies outside skills/ so Pi cannot discover backups as duplicate skills.
 AGENT_SETUP_HOME="$TARGET_HOME" "$REPO_DIR/setup/install-moraine.sh" pi
+PI_CODING_AGENT_DIR="$PI_DIR" "$PI_BIN" install "$MCP_EXTENSION_SOURCE"
+configure_notion_mcp
 MORAINE_SKILL_SOURCE="$SCRIPT_DIR/skills/moraine-history"
 MORAINE_SKILL_DESTINATION="$PI_DIR/skills/moraine-history"
 MORAINE_SKILL_BACKUP="$PI_DIR/backups/moraine-history/moraine-history.backup.$STAMP"
@@ -120,4 +176,4 @@ fi
 install_dir "$MORAINE_SKILL_SOURCE" "$MORAINE_SKILL_DESTINATION"
 chmod 0755 "$MORAINE_SKILL_DESTINATION/scripts/health-check.sh"
 
-printf '\nInstalled Pi resources. Run /reload in an existing Pi session, or start a new one.\n'
+printf '\nInstalled Pi resources. Run /reload in an existing Pi session, then /mcp:auth notion when ready to authenticate.\n'

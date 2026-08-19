@@ -111,6 +111,8 @@ settings = {
     "sandbox_mode": '"workspace-write"',
     "approvals_reviewer": '"auto_review"',
 }
+notion_table = "mcp_servers.notion"
+notion_url = "https://mcp.notion.com/mcp"
 
 if os.path.exists(path):
     with open(path, encoding="utf-8") as handle:
@@ -164,6 +166,41 @@ if in_top_level:
     insert_missing()
 
 updated = "".join(output)
+parsed = tomllib.loads(updated)
+mcp_servers = parsed.get("mcp_servers", {})
+if not isinstance(mcp_servers, dict):
+    raise SystemExit(f"ERROR: mcp_servers must be a table in {path}")
+
+notion = mcp_servers.get("notion")
+header_pattern = re.compile(rf"(?m)^\s*\[{re.escape(notion_table)}\]\s*(?:#.*)?$")
+header_match = header_pattern.search(updated)
+if notion is None:
+    if updated and not updated.endswith("\n"):
+        updated += "\n"
+    if updated and updated.strip():
+        updated += "\n"
+    updated += f"[{notion_table}]\nurl = \"{notion_url}\"\n"
+elif not isinstance(notion, dict):
+    raise SystemExit(f"ERROR: {notion_table} must be a table in {path}")
+elif header_match is None:
+    raise SystemExit(
+        f"ERROR: {notion_table} uses an unsupported inline or quoted-table form in {path}"
+    )
+else:
+    section_start = header_match.end()
+    next_header = re.search(r"(?m)^\s*\[", updated[section_start:])
+    section_end = (
+        section_start + next_header.start() if next_header is not None else len(updated)
+    )
+    section = updated[section_start:section_end]
+    url_pattern = re.compile(r"(?m)^\s*url\s*=.*$")
+    replacement = f'url = "{notion_url}"'
+    if url_pattern.search(section):
+        section = url_pattern.sub(replacement, section, count=1)
+    else:
+        section = f"\n{replacement}" + section
+    updated = updated[:section_start] + section + updated[section_end:]
+
 try:
     tomllib.loads(updated)
 except tomllib.TOMLDecodeError as exc:

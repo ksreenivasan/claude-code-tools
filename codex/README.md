@@ -8,7 +8,7 @@ search.
 
 | Component | Purpose |
 | --- | --- |
-| `~/.codex/config.toml` settings | Use workspace sandboxing and route necessary escalations to automatic review |
+| `~/.codex/config.toml` settings | Use workspace sandboxing, route necessary escalations to automatic review, and register Notion's hosted MCP endpoint |
 | `~/.codex/AGENTS.md` | Define autonomy, risky-action review, verification, GSD mode, and Moraine memory behavior |
 | `~/.codex/rules/default.rules` | Route recognizable destructive command families through the reviewer |
 | `stop-nanny.py` | Optional completion reviewer; retained in the repository but not installed by default |
@@ -34,7 +34,8 @@ codex/install.sh
 The installer:
 
 1. Preserves unrelated `config.toml` settings while merging the three
-   permission keys.
+   permission keys and `[mcp_servers.notion]` with only
+   `url = "https://mcp.notion.com/mcp"`.
 2. Backs up and installs the global instructions and command rules.
 3. Installs every canonical portable skill from [`../skills/`](../skills/), with recoverable backups outside skill discovery.
 4. Leaves the optional Stop nanny uninstalled.
@@ -59,6 +60,20 @@ The Stop hook is intentionally not installed: it interferes with the existing
 nanny setup and is largely unnecessary with that nanny in place. The standalone
 `codex/install-stop-nanny.sh` installer remains available for explicit use;
 individual non-managed hooks can then be disabled with `/hooks`.
+
+## Notion MCP authentication
+
+The installer registers Notion's official hosted Streamable HTTP endpoint but
+does not authenticate. It stores no OAuth tokens, authorization headers, or
+other credentials in `config.toml`. Authenticate interactively when ready:
+
+```bash
+codex mcp login notion
+```
+
+Complete the Notion workspace authorization in the browser, then restart the
+Codex desktop app and start a new task so it loads the server and its tools.
+Verify the connection with `codex mcp get notion`, `codex mcp list`, or `/mcp`.
 
 Invoke the supervisor explicitly with `$tmux-nanny`. The nanny stays in the
 control plane: it delegates substantive coding,

@@ -13,7 +13,8 @@ setup reproducible.
 | `notify.ts` | Native terminal notification when Pi is genuinely idle |
 | Portable skills | Installs every repository-owned skill from [`../skills/`](../skills/), including recon, evaluation, review, MCP-building, and explicit tmux supervision |
 | Pi `moraine-history` adapter | Health check and Pi-native workflow for historical session retrieval |
-| Official `pi-mcp-extension` | Exposes Moraine's MCP tools to Pi |
+| `pi-mcp-extension@1.5.0` | Exposes Moraine and hosted Notion MCP tools to Pi |
+| Hosted Notion MCP | Uses Streamable HTTP and interactive OAuth without storing a token in repository config |
 | Pi subagent extension | Runs isolated scout, planner, worker, reviewer, and simplifier agents |
 | Prompt templates | `/scout-and-plan`, `/implement-and-review`, and `/review` |
 
@@ -35,7 +36,8 @@ The installer:
 5. Copies Pi's maintained subagent extension from the active Pi installation.
 6. Installs the personal agent definitions.
 7. Configures Moraine's official Pi MCP bridge and persistent launch agents.
-8. Installs the Moraine history skill.
+8. Pins `pi-mcp-extension@1.5.0`, merges the hosted Notion MCP entry without replacing other servers, and creates private OAuth storage.
+9. Installs the Moraine history skill.
 
 Run `/reload` in an existing Pi session after installation. Invoke the nanny
 explicitly with `/skill:tmux-nanny`.
@@ -85,10 +87,48 @@ Moraine is owned by these launch agents on macOS:
 - `dev.moraine.ingest`
 - `dev.moraine.backend`
 
+## Hosted Notion MCP
+
+The installer preserves existing MCP servers and adds this exact non-secret entry to
+`~/.pi/agent/mcp.json`:
+
+```json
+{
+  "transport": "streamable-http",
+  "url": "https://mcp.notion.com/mcp",
+  "auth": { "type": "oauth" },
+  "lifecycle": "lazy"
+}
+```
+
+It keeps `mcp.json` at mode `0600` and precreates `~/.pi/agent/mcp-auth` at
+mode `0700`. Authentication remains an explicit user action. In Pi, run:
+
+```text
+/reload
+/mcp:auth notion
+/mcp notion
+```
+
+The browser flow stores plaintext OAuth state under `~/.pi/agent/mcp-auth`.
+After first authentication or any explicit reauthentication, normalize the state
+file permissions without reading them:
+
+```bash
+find ~/.pi/agent/mcp-auth -maxdepth 1 -type f -exec chmod 0600 {} +
+```
+
+For a minimal smoke test, authorize a disposable Notion scratch parent, fetch it
+without mutation, create one uniquely named child containing a random nonce, then
+fetch that child by returned ID and verify the exact nonce. On later Pi launches,
+start the lazy server with `/mcp:start notion`; `/mcp:auth notion` intentionally
+resets saved OAuth state.
+
 ## Verification
 
 ```bash
 pi/test.sh
+bash -n pi/install.sh pi/test.sh
 setup/test-portable-skills.sh
 ~/.pi/agent/skills/moraine-history/scripts/health-check.sh
 pi list

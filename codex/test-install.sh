@@ -35,6 +35,10 @@ model = "keep-me"
 
 [features]
 web_search = true
+
+[mcp_servers.existing]
+url = "https://example.com/mcp"
+enabled = false
 EOF
 ln -s "$DOTFILES/AGENTS.md" "$CODEX_DIR/AGENTS.md"
 ln -s "$DOTFILES/default.rules" "$CODEX_DIR/rules/default.rules"
@@ -56,7 +60,14 @@ dotfiles = target / "dotfiles"
 
 assert (dotfiles / "AGENTS.md").read_text() == "external agents\n"
 assert (dotfiles / "default.rules").read_text() == "external rules\n"
-assert (dotfiles / "config.toml").read_text() == 'model = "keep-me"\n\n[features]\nweb_search = true\n'
+assert (dotfiles / "config.toml").read_text() == (
+    'model = "keep-me"\n\n'
+    '[features]\n'
+    'web_search = true\n\n'
+    '[mcp_servers.existing]\n'
+    'url = "https://example.com/mcp"\n'
+    'enabled = false\n'
+)
 
 assert not (codex / "AGENTS.md").is_symlink()
 assert not (codex / "rules/default.rules").is_symlink()
@@ -70,6 +81,13 @@ assert config["features"]["web_search"] is True
 assert config["approval_policy"] == "on-request"
 assert config["sandbox_mode"] == "workspace-write"
 assert config["approvals_reviewer"] == "auto_review"
+assert config["mcp_servers"]["existing"] == {
+    "url": "https://example.com/mcp",
+    "enabled": False,
+}
+assert config["mcp_servers"]["notion"] == {
+    "url": "https://mcp.notion.com/mcp"
+}
 
 agent_backups = list(codex.glob("AGENTS.md.backup.*"))
 rule_backups = list((codex / "rules").glob("default.rules.backup.*"))
@@ -107,6 +125,9 @@ config = tomllib.loads((codex / "config.toml").read_text())
 assert config["approval_policy"] == "on-request"
 assert config["sandbox_mode"] == "workspace-write"
 assert config["approvals_reviewer"] == "auto_review"
+assert config["mcp_servers"]["notion"] == {
+    "url": "https://mcp.notion.com/mcp"
+}
 agent_backup = next(codex.glob("AGENTS.md.backup.*"))
 rule_backup = next((codex / "rules").glob("default.rules.backup.*"))
 config_backup = next((codex / "backups").glob("config.toml.symlink.backup.*"))
