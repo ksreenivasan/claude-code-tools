@@ -47,6 +47,7 @@ try {
 }
 
 assert.equal(classifyToolCall("bash", { command: "git push origin main" }, disposableRoot).risky, true);
+assert.equal(classifyToolCall("bash", { command: "git -C /tmp/repo push origin main" }, disposableRoot).risky, true);
 assert.equal(classifyToolCall("bash", { command: "git push --force origin main" }, disposableRoot).risky, true);
 assert.equal(classifyToolCall("bash", { command: "git reset --hard HEAD~1" }, disposableRoot).risky, true);
 assert.equal(classifyToolCall("bash", { command: "terraform destroy -auto-approve" }, disposableRoot).risky, true);

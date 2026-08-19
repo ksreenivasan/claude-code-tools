@@ -138,6 +138,13 @@ function protectedPathReason(rawPath: string, cwd: string): string | undefined {
 	return undefined;
 }
 
+function normalizeGitDirectoryOption(command: string): string {
+	return command.replace(
+		/\bgit\s+-C\s+(?:"[^"\n]*"|'[^'\n]*'|\$\{?[A-Za-z_][A-Za-z0-9_]*\}?|[^\s;&|]+)\s+/g,
+		"git ",
+	);
+}
+
 function withoutCachedPatchHeredoc(command: string): string {
 	const lines = command.split("\n");
 	const start = lines.findIndex((line) => /\bgit\s+apply\s+--cached\b/.test(line) && /<<-?\s*['"]?[A-Za-z_][A-Za-z0-9_]*['"]?\s*$/.test(line));
@@ -181,8 +188,9 @@ export function classifyToolCall(toolName: string, input: Record<string, unknown
 		if (isExactDisposableRecursiveDelete(command, cwd)) return { risky: false };
 		const protectedRisk = shellProtectedPathRisk(withoutCachedPatchHeredoc(command));
 		if (protectedRisk) return { risky: true, reason: protectedRisk };
+		const riskCommand = normalizeGitDirectoryOption(command);
 		for (const [pattern, reason] of COMMAND_RISKS) {
-			if (pattern.test(command)) return { risky: true, reason };
+			if (pattern.test(riskCommand)) return { risky: true, reason };
 		}
 		return { risky: false };
 	}
